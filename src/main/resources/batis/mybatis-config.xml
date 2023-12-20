@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+	<!-- 조회결과를 자바객체에 담을때
+	밑줄표기법의 컬럼명과 낙타표기법의 자바속성(변수)명을 저동으로 연결 -->
+		<setting name="mapUnderscoreToCamelCase" value="true"/>	
+	</settings>
+	
+	<typeAliases>
+	<!-- 마이바티스 설정파일 내에서 com.exam.member.MemberVO를 MemberVO로 대신 사용 가능 -->
+		<typeAlias type="com.exam.myapp.member.MemberVO" alias="MemberVO"/>
+		<typeAlias type="com.exam.myapp.bbs.BbsVO" alias="BbsVO"/>
+		<typeAlias type="com.exam.myapp.bbs.AttachVO" alias="AttachVO"/>
+		<typeAlias type="com.exam.myapp.reply.ReplyVO" alias="ReplyVO"/>
+		
+		<!-- 패키지 태그를 사용하면 지정한 패키지 하위의 모든 클래스들에 대한 별명을 자동으로 등록함 
+			별명은 패키지명을 제외한 심플클래스이름으로 설정-->
+		<!-- <package name="com.exam.member"/> -->
+	</typeAliases>
+	
+<!-- 실제로 사용할 데이터베이스 정보를 담은 environment의 id 속성값을 지정 
+  <environments default="development">
+   사용하는 데이터베이스 접속 정보를 environment태그로 설정 
+  	DB를 여러 개 쓸 수 있기 때문에 environments 안에 environment태그들을 여러 개 쓸 수 있도록 해줌
+  개발용, 테스트용, 운영용 등 다수의 데이터베이스 정보 설정 가능  
+    <environment id="development">
+      <transactionManager type="JDBC"/>
+      <dataSource type="POOLED">
+        <property name="driver" value="oracle.jdbc.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@localhost:1521:xe"/>
+        <property name="username" value="web"/>
+        <property name="password" value="web01"/>
+      </dataSource>
+    </environment>
+  </environments> -->
+  
+  <!-- MAPPERS : 마이바티스를 통해서 실행할 SQL문들을 담고있는 XML 파일을 등록 -->
+<!--   <mappers>
+    <mapper resource="batis/mappers/MemberMapper.xml"/>
+  </mappers> -->
+</configuration>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+	<!-- The definition of the Root Spring Container shared by all Servlets and Filters -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/spring/root-context.xml</param-value>
+	</context-param>
+	
+	<!-- Creates the Spring Container shared by all Servlets and Filters -->
+	<!-- 웹애플리케이션(서버)이 실행되면 최초 1회 실행 그리고 contextConfigLocation이라는 애를 찾음 
+	/WEB-INF/spring/root-context.xml가 나오게 되고 여기에 적혀있는대로 스프링 객체 컨테이너 생성 
+	그리고 서블릿 컨텍스트에다가 저장을 해둠-->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<!-- Processes application requests -->
+	<!-- DispatcherServlet는 
+	/WEB-INF/spring/appServlet/servlet-context.xml에 써있는대로 스프링 객체 컨테이너를 생성을 해줌
+	스프링 컨테이너에 등록된 객체들을 사용하여 요청을 처리(서블릿 역할) 그래서 총 생성과 요청처리라는 2가지 일을 함 -->
+	<!-- ContextLoaderListener가 생성한 스프링 객체 컨테이너가 있다면 부모 컨테이너로 설정함 -->
+	<servlet>
+		<servlet-name>appServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>/WEB-INF/spring/appServlet/servlet-context.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+		
+	<!-- 다른 JSP 파일 또는 서블릿과 연결되지 않은 모든 주소(경로)에 대한 요청을 처리하도록 등록 -->
+	<servlet-mapping>
+		<servlet-name>appServlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+
+	<filter>
+		 <filter-name>encoding-filter</filter-name>
+		 <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		 <init-param>
+		 	<param-name>encoding</param-name>
+			 <param-value>UTF-8</param-value>
+	 	</init-param>
+	 </filter>
+	 <filter-mapping>
+		 <filter-name>encoding-filter</filter-name>
+		 <url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+</web-app>

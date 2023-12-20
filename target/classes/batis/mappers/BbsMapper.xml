@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <!-- 이 파일이 담고 있는 SQL문들 집합의 고유한 이름을 namespace 속성값으로 설정 -->
+  <!-- 일반적으로 이 SQL문들을 실행할 떄 사용할 DAO인터페이스 이름을 지정 -->
+<mapper namespace="com.exam.myapp.bbs.BbsDao">
+
+	<!-- resultMap을 사용하여 조회 결과의 어떤 column값을 
+	BbsVO 객체의 어떤 속성(변수)에 담을건지, 즉 저장할건지 설정 -->
+	<resultMap type="BbsVO" id="BbsMap">
+	<!-- 기본키(PK)에 해당되는 칼럼에 대해서는 RESULT 대신 ID태그를 사용  -->
+		<id property="bbsNo" column="bbs_no" />
+		<result property="bbsTitle" column="bbs_title" />
+		<result property="bbsContent" column="bbs_content" />
+		<result property="bbsWriter" column="bbs_writer" />
+		<result property="bbsRegDate" column="bbs_reg_date" />
+		<result property="bbsCount" column="bbs_count" />
+		<!-- 이 attach의 값들을 넣기 위해서 만들어진 attachList -->
+		<!-- Join조회 결과를 담기 위한 resultMap 설정 -->
+		<!-- 1:1 관계이면 association 엘리먼트를, 1:N 관계이면 collection 엘리먼트를 사용 -->
+		<!-- <collection property="attachList" ofType="AttachVO">
+		ofType은 어떤 것의 집합인지를 알려주는 것, ofType에서 길게 적기 싫으면 mybatis-config.xml에다가 alias를 정해주면 됨
+			<result property="attNo" column="att_no" />
+			<result property="attOrgName" column="att_org_name" />
+			<result property="attNewName" column="att_new_name" />
+			<result property="attBbsNo" column="att_bbs_no" />
+		</collection> -->
+		<!-- selectAttachList에서의 값을 attachList에다가 넣어주자 근데 selectAttachList의 데이터가 BbsDao에 없으니
+			AttachDao의 위치를 알려줘야 함 (AttachMapper의 namespace를 가지고 와서 select앞에다가 붙여줘야 함) 
+			그리고 sql문 실행을 하기 위해서 bbs_no를 주고 sql문 실행한 다음 값은 attachList에다가 넣어주는 거임-->
+			
+		<collection property="attachList" ofType="AttachVO" column="bbs_no"
+		 select="com.exam.myapp.bbs.AttachDao.selectAttachList" />
+	</resultMap>
+	<sql id="searchCondition">
+	<!-- trim 태그 내부에 내용이 있을 경우에만, 내용 앞에 prefix 속성값을 추가 -->
+		 <!-- 내용의 시작 부분이 prefixOverrides 속성값인 경우 그 부분을 내용에서 제거 -->
+  		 <trim prefix="WHERE" prefixOverrides="AND |OR ">
+  		 
+	  		 <if test="(searchType == 'title' or searchType == 'total') and searchWord!=null and searchWord!=''">
+	  		  	bbs_title like '%' || #{searchWord} || '%'
+	  		 </if>
+	  		
+	  		 <if test="(searchType == 'content' or searchType == 'total') and searchWord!=null and searchWord!=''">
+	  		  	OR bbs_content like '%' || #{searchWord} || '%'
+	  		 </if>
+  		 
+  		 </trim>
+	
+	</sql>
+	<!-- 등록할 SQL문과 동일한 이름의 태그를 사용하여 SQL을 등록-->
+	<!-- 이 파일 내에서 해당 SQL문의 고유한 이름을 id속성값으로 설정 -->
+	<!-- 일반적으로 이 SQL문을 실행할 때 사용할 DAO인터페이스의 메서드 이름을 지정 -->
+	<!-- select 실행 결과의 한 행(row)를 담을 객체의 클래스 명을 resultType 속성에 설정 -->
+	<select id="selectBbsList" resultType="BbsVO">
+	
+	SELECT rnum,bbs_no, bbs_title, bbs_writer, bbs_reg_date, bbs_count 
+	from (
+	SELECT rownum rnum,bbs_no, bbs_title, bbs_writer, bbs_reg_date, bbs_count 
+	from (  		 
+      SELECT bbs_no, bbs_title, bbs_writer, bbs_reg_date, bbs_count FROM bbs
+  		 <include refid="searchCondition"></include>
+  		 ORDER BY bbs_no desc
+       )
+       <![CDATA[ where rownum <= #{lastRecordIndex}]]>
+       )
+       <![CDATA[where #{firstRecordIndex} < rnum]]>
+       
+	
+ 		<!-- resultMap 속성을 사용하여 id가 MemberMap인 resultMap에
+ 		써놓은대로 조회결과를 담도록 설정  -->
+  		<!-- <select id="selectMemberList" resultMap="MemberMap"> -->
+  		 
+ 	</select>
+ 	
+ 	
+	<select id="selectBbsCount" resultType="int">  
+ 	
+  		 SELECT count(*)
+  		 FROM bbs
+  		 <include refid="searchCondition"></include>
+ 	</select>
+  
+  <!-- SQL문 실행시 전달받는 데이터의 타입을 parameterType 속성에 지정 가능(생략도 가능) 
+  		이번 Bbs에서는 생략을 해주겠음 만약 적는다면 parameterType="BbsVO"로 적어줘야 함-->
+  <insert id="insertBbs">
+  	<selectKey keyProperty="bbsNo" resultType="int" order="BEFORE"> 
+  		SELECT bbs_seq.NEXTVAL FROM DUAL
+  	</selectKey>
+  	INSERT INTO bbs (bbs_no, bbs_title, bbs_content, bbs_writer) 
+  	<!-- 여기서 입력을 받은 건 bbsTitle과 bbsContent를 받았고 이는 BbsVO의 vo에 담겨져있음 -->
+  	VALUES (#{bbsNo}, #{bbsTitle}, #{bbsContent}, #{bbsWriter} )
+  	
+  	<!-- 파라미터(인자)로 받은 객체의 속성값(변수)들을 SQL문 내에 사용하기 위해서,
+  	#{속성명} 또는 ${속성명} 표현을 사용-->
+  	<!-- #{속성명} = JDBC의 ? 채우기와 같은 방식으로 동작 
+  		${속성명} = 문자열 이어붙이기 방식으로 동작 (보안상 위험하므로 가급적 사용 자제)-->
+  </insert>
+  
+  
+  <!-- 문자열, 정수 등 단일값을 갖는 데이터를 파라미터(인자)로 받은 경우,
+  	#{속성명}의 속성명에는 어떤 이름을 써도 무방함 ex.이ㅇㅁㄴㄹ만어램
+  	일반적으로 value 또는 변수명을 사용함 -->
+  <delete id="deleteBbs">
+  	DELETE FROM bbs WHERE bbs_no= #{bbsNo}
+  </delete>
+  
+  <select id="selectBbs" resultMap="BbsMap">  
+  	<!-- SELECT bbs_no, bbs_title, bbs_content, bbs_writer, bbs_reg_date, bbs_count,
+     		att_no, att_org_name, att_new_name, att_bbs_no
+	FROM (
+		SELECT bbs_no, bbs_title, bbs_content, bbs_writer, bbs_reg_date, bbs_count
+		FROM bbs
+		WHERE bbs_no= #{bbsNo} 
+		) 
+		LEFT OUTER JOIN attach ON bbs_no = att_bbs_no -->
+		
+		<!-- 첨부파일 하기 전에 게시글을 가지고 오는 sql문 -->
+		SELECT bbs_no, bbs_title, bbs_content, bbs_writer, bbs_reg_date, bbs_count
+		FROM bbs
+		WHERE bbs_no= #{bbsNo} 
+  </select>
+  
+  <update id="updateBbs">
+  	UPDATE bbs
+  	SET bbs_title= #{bbsTitle}, bbs_content = #{bbsContent} 
+  	WHERE bbs_no = #{bbsNo} and bbs_writer = #{bbsWriter}
+  </update>
+  
+</mapper>

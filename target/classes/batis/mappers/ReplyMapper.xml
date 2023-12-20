@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <!-- 이 파일이 담고 있는 SQL문들 집합의 고유한 이름을 namespace 속성값으로 설정 -->
+  <!-- 일반적으로 이 SQL문들을 실행할 떄 사용할 DAO인터페이스 이름을 지정 -->
+<mapper namespace="com.exam.myapp.reply.ReplyDao">
+	
+	  <select id="selectReplyList" resultType="ReplyVO">  
+	 		SELECT REP_NO, REP_CONTENT, REP_WRITER, REP_REG_DATE, REP_BBS_NO 
+	 	 	FROM reply
+	 	 	WHERE rep_bbs_no= #{repBbsNo}
+	 	 	ORDER BY REP_REG_DATE desc
+	  </select>
+  
+	  <insert id="insertReply">
+	  	INSERT INTO REPLY (REP_NO, REP_CONTENT, REP_WRITER, REP_REG_DATE, REP_BBS_NO) 
+	  	VALUES (REP_SEQ.NEXTVAL, #{repContent}, #{repWriter}, sysdate, #{repBbsNo} )
+	  </insert>
+  
+	  <delete id="deleteReply">
+	  DELETE FROM REPLY WHERE REP_NO= #{repNo} AND REP_WRITER = #{repWriter}
+	  </delete>
+  
+  <!--======================================================  -->
+  <!-- 첨부파일  -->
+  <!-- <select id="selectAttach" resultType="AttachVO">  
+  	 SELECT att_no, att_org_name, att_new_name, att_bbs_no 
+  	 FROM attach
+  	 WHERE att_no= #{attNo}
+  </select> -->
+  
+  <!--첨부파일  -->
+  <!-- <delete id="deleteAttach">
+  	DELETE FROM ATTACH WHERE att_no= #{attNo}
+  </delete> -->
+  
+</mapper>

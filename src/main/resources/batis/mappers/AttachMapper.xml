@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <!-- 이 파일이 담고 있는 SQL문들 집합의 고유한 이름을 namespace 속성값으로 설정 -->
+  <!-- 일반적으로 이 SQL문들을 실행할 떄 사용할 DAO인터페이스 이름을 지정 -->
+<mapper namespace="com.exam.myapp.bbs.AttachDao">
+	
+	<!-- 등록할 SQL문과 동일한 이름의 태그를 사용하여 SQL을 등록-->
+	<!-- 이 파일 내에서 해당 SQL문의 고유한 이름을 id속성값으로 설정 -->
+	<!-- 일반적으로 이 SQL문을 실행할 때 사용할 DAO인터페이스의 메서드 이름을 지정 -->
+	<!-- select 실행 결과의 한 행(row)를 담을 객체의 클래스 명을 resultType 속성에 설정 -->
+	<select id="selectAttachList" resultType="AttachVO">  
+  		SELECT att_no, att_org_name, att_new_name, att_bbs_no 
+  	 	FROM attach
+  	 	WHERE att_bbs_no= #{attBbsNo}
+ 	</select>
+  
+  <select id="selectAttach" resultType="AttachVO">  
+  	 SELECT att_no, att_org_name, att_new_name, att_bbs_no 
+  	 FROM attach
+  	 WHERE att_no= #{attNo}
+  </select>
+  
+  <insert id="insertAttach">
+  	INSERT INTO ATTACH (att_no, att_org_name, att_new_name, att_bbs_no) 
+  	VALUES (att_seq.NEXTVAL, #{attOrgName}, #{attNewName}, #{attBbsNo} )
+  </insert>
+  
+  
+  <!-- 문자열, 정수 등 단일값을 갖는 데이터를 파라미터(인자)로 받은 경우,
+  	#{속성명}의 속성명에는 어떤 이름을 써도 무방함 ex.이ㅇㅁㄴㄹ만어램
+  	일반적으로 value 또는 변수명을 사용함 -->
+  <delete id="deleteAttach">
+  	DELETE FROM ATTACH WHERE att_no= #{attNo}
+  </delete>
+  
+</mapper>
